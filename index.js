@@ -10,7 +10,7 @@ const pool = new Pool({
 
 app.get('/api/data', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM your_table'); // Replace 'your_table' with your actual table name
+    const result = await pool.query('SELECT * FROM my_schema.table1'); // Replace 'your_table' with your actual table name
     res.json(result.rows);
   } catch (error) {
     console.error(error);
