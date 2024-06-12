@@ -1,5 +1,5 @@
-// index.js
 const express = require('express');
+const cors = require('cors');
 const { Pool } = require('pg');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -7,6 +7,9 @@ const port = process.env.PORT || 3000;
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || "postgresql://database1_nutscream:c03153352fb071877f7676ddb1a7951488337b55@4h7.h.filess.io:5433/database1_nutscream"
 });
+
+// Enable CORS for all routes
+app.use(cors());
 
 app.get('/api/data', async (req, res) => {
   try {
