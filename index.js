@@ -1,12 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const axios = require('axios'); // Import axios
+
+// Initialize Express application
 const app = express();
 const port = process.env.PORT || 3000;
 
 // PostgreSQL connection pool
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgresql://database1_nutscream:c03153352fb071877f7676ddb1a7951488337b55@4h7.h.filess.io:5433/database1_nutscream"
+  connectionString: process.env.DATABASE_URL || "postgresql://username:password@localhost:5432/database_name"
 });
 
 // Middleware
@@ -16,29 +19,37 @@ app.use(cors());
 app.get('/api/data', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM my_schema.table1');
-    // Convert array of objects to a string representation
-    const dataString = result.rows.map(row => JSON.stringify(row)).join('\n');
-    res.send(dataString); // Send string response
+    res.json(result.rows); // Send JSON response
   } catch (error) {
     console.error('Error fetching all data:', error);
-    res.status(500).send('Internal Server Error'); // Send string error response
+    res.status(500).send('Internal Server Error');
   }
 });
 
 // Route to get data by username
-app.get('/api/data/:username', async (req, res) => {
+app.get('/api/dataa/:username', async (req, res) => {
   const { username } = req.params; // Extract username from request parameters
   try {
-    const result = await pool.query('SELECT username FROM my_schema.table1 WHERE username = $1', [username]);
-    // Convert array of objects to a string representation
-    //const dataString = result.rows.map(row => JSON.stringify(row)).join('\n');
-    const dataString = result.rows.map(row => JSON.stringify(row)).join('\n');
-    console.log("Hasilnya")
-    console.log(dataString)
-    res.send(dataString); // Send string response
+    const result = await pool.query('SELECT * FROM my_schema.table1 WHERE username = $1', [username]);
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]); // Send JSON response of the first matching row
+    } else {
+      res.status(404).send('Username not found'); // Send 404 if no matching username found
+    }
   } catch (error) {
     console.error(`Error fetching data for username ${username}:`, error);
-    res.status(500).send('Internal Server Error'); // Send string error response
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// New route to request data from external API
+app.get('/external-data', async (req, res) => {
+  try {
+    const response = await axios.get('https://rfidboomgate.com/wp-json/getuser/v1/user');
+    res.json(response.data); // Send JSON response
+  } catch (error) {
+    console.error('Error fetching external data:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
